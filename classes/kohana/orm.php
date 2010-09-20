@@ -642,11 +642,15 @@ class Kohana_ORM {
 		// Use the keys of the empty object to determine the columns
 		foreach (array_keys($target->_object) as $column)
 		{
-			$name   = $target_path.'.'.$column;
-			$alias  = $target_path.':'.$column;
+			// Skip over ignored columns
+			if( ! in_array($column, $target->_ignored_columns))
+			{
+				$name   = $target_path.'.'.$column;
+				$alias  = $target_path.':'.$column;
 
-			// Add the prefix so that load_result can determine the relationship
-			$this->select(array($name, $alias));
+				// Add the prefix so that load_result can determine the relationship
+				$this->select(array($name, $alias));
+			}
 		}
 
 		if (isset($parent->_belongs_to[$target_alias]))
@@ -1105,7 +1109,7 @@ class Kohana_ORM {
 
 		$this->_build(Database::SELECT);
 
-		$records = $this->_db_builder->from($this->_table_name)
+		$records = (int) $this->_db_builder->from($this->_table_name)
 			->select(array('COUNT("*")', 'records_found'))
 			->execute($this->_db)
 			->get('records_found');
